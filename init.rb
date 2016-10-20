@@ -1,3 +1,4 @@
+require_dependency 'pstore'
 require_dependency 'issues_hook_listener'
 
 Redmine::Plugin.register :notify do
