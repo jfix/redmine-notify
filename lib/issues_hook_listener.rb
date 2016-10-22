@@ -1,5 +1,23 @@
 
 class IssuesHookListener < Redmine::Hook::Listener
+  
+  @@broker_url = 'http://localhost:8161/api/message/redmine?type=topic'
+  
+  # catch new tickets
+  def controller_issues_new_after_save(context = {})
+    issue = context[:issue]
+
+    event = {
+      :type => "creation",
+      :issue_id => issue.id,
+      :project_id => issue.project.id,
+      :priority_id => issue.priority.id
+    }
+
+    send_event_async(event)
+  end
+  
+  # catch ticket status changes
   def controller_issues_edit_after_save(context = {})
     issue = context[:issue]
     journal = context[:journal]
@@ -11,8 +29,10 @@ class IssuesHookListener < Redmine::Hook::Listener
     end
     
     event = {
+      :type => "change",
       :issue_id => issue.id,
       :project_id => issue.project.id,
+      :priority_id => issue.priority.id,
       :old_status_id => statusChange.old_value,
       :new_status_id => statusChange.value
     }
@@ -23,7 +43,7 @@ class IssuesHookListener < Redmine::Hook::Listener
   # method to send the event to the message broker
   def send_event_async(event)
     Thread.new do
-      uri = URI.parse('http://localhost:8161/api/message/redmine?type=topic')
+      uri = URI.parse(@@broker_url)
       
       # load cookies store
       cookiesStore = PStore.new("notify.cookies.pstore", thread_safe = true)
