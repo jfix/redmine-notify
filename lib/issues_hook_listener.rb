@@ -1,9 +1,6 @@
 
 class IssuesHookListener < Redmine::Hook::Listener
 
-  #@@broker_url = Setting[:plugin_notify][:broker_url]
-  @@broker_url = 'http://localhost:8161/api/message/redmine?type=topic'
-
   # catch new tickets
   def controller_issues_new_after_save(context = {})
     issue = context[:issue]
@@ -43,6 +40,12 @@ class IssuesHookListener < Redmine::Hook::Listener
 
   # method to send the event to the message broker
   def send_event_async(event)
+
+    # these variables are retrieved from the settings (see _notify_settings.html.erb)
+    @@broker_url = Setting.plugin_notify[:broker_url]
+    @@broker_login = Setting.plugin_notify[:broker_login]
+    @@broker_pwd = Setting.plugin_notify[:broker_pwd]
+
     Thread.new do
       uri = URI.parse(@@broker_url)
 
@@ -63,7 +66,7 @@ class IssuesHookListener < Redmine::Hook::Listener
         'Content-Type' => 'application/json',
         'Cookie' => cookiesString
       })
-      request.basic_auth("admin", "admin")
+      request.basic_auth(@@broker_login, @@broker_pwd)
       request.body = event.to_json
 
       # execute request

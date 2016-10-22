@@ -1,4 +1,6 @@
 "en":
-  broker_url: URL for the message broker
-  broker_login: Login for message broker
-  broker_pwd: Password for message broker
+  plugin_help: Please fill in the following fields so that Redmine can communicate with your message broker.
+  broker_url: URL
+  broker_url_hint: (e.g. http://localhost:8161/api/message/redmine?type=topic)
+  broker_login: Login
+  broker_pwd: Password

@@ -1,6 +1,15 @@
-<h1>settings for the plugin will be here.....</h1>
+<%= t(:plugin_help) %>
 
 <p>
-  <label>Message broker URL</label>
-  <%= text_field_tag 'settings[broker_url]', @settings['broker_url'], :size => 50 %>(enter full URL including port if necessary)
+  <label><%= t(:broker_url) %></label>
+  <%= text_field_tag 'settings[broker_url]', @settings['broker_url'], :size => 50 %>
+  <br/><%= t(:broker_url_hint) %>
+</p>
+<p>
+  <label><%= t(:broker_login) %></label>
+  <%= text_field_tag 'settings[broker_login]', @settings['broker_login'], :size => 50 %>
+</p>
+<p>
+  <label><%= t(:broker_pwd) %></label>
+  <%= password_field_tag 'settings[broker_pwd]', @settings['broker_pwd'], :size => 50 %>
 </p>
