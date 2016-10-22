@@ -8,4 +8,5 @@ Redmine::Plugin.register :notify do
   version '0.0.7'
   url 'https://github.com/mereth/redmine-notify'
   author_url 'https://github.com/mereth'
+  settings :default => {'empty' => true}, :partial => 'settings/notify_settings'
 end

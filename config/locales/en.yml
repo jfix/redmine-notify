@@ -1,0 +1,4 @@
+"en":
+  broker_url: URL for the message broker
+  broker_login: Login for message broker
+  broker_pwd: Password for message broker

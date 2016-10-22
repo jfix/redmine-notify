@@ -1,8 +1,9 @@
 
 class IssuesHookListener < Redmine::Hook::Listener
-  
+
+  #@@broker_url = Setting[:plugin_notify][:broker_url]
   @@broker_url = 'http://localhost:8161/api/message/redmine?type=topic'
-  
+
   # catch new tickets
   def controller_issues_new_after_save(context = {})
     issue = context[:issue]
@@ -16,18 +17,18 @@ class IssuesHookListener < Redmine::Hook::Listener
 
     send_event_async(event)
   end
-  
+
   # catch ticket status changes
   def controller_issues_edit_after_save(context = {})
     issue = context[:issue]
     journal = context[:journal]
-    
+
     statusChange = journal.detail_for_attribute('status_id')
-    
+
     if statusChange.nil?
       return
     end
-    
+
     event = {
       :type => "change",
       :issue_id => issue.id,
@@ -36,7 +37,7 @@ class IssuesHookListener < Redmine::Hook::Listener
       :old_status_id => statusChange.old_value,
       :new_status_id => statusChange.value
     }
-    
+
     send_event_async(event)
   end
 
@@ -44,10 +45,10 @@ class IssuesHookListener < Redmine::Hook::Listener
   def send_event_async(event)
     Thread.new do
       uri = URI.parse(@@broker_url)
-      
+
       # load cookies store
       cookiesStore = PStore.new("notify.cookies.pstore", thread_safe = true)
-      
+
       # prepare cookie header
       cookiesString = ""
       cookiesStore.transaction(true) do
@@ -56,7 +57,7 @@ class IssuesHookListener < Redmine::Hook::Listener
           cookiesString = cookies.map{|k,v| "#{k}=#{v}"}.join(';')
         end
       end
-      
+
       # setup request
       request = Net::HTTP::Post.new(uri, {
         'Content-Type' => 'application/json',
@@ -64,11 +65,11 @@ class IssuesHookListener < Redmine::Hook::Listener
       })
       request.basic_auth("admin", "admin")
       request.body = event.to_json
-      
+
       # execute request
       http = Net::HTTP.new(uri.host, uri.port)
       response = http.request(request)
-      
+
       # save any new cookies
       newCookies = response.get_fields('Set-Cookie')
       if(newCookies)
@@ -77,12 +78,12 @@ class IssuesHookListener < Redmine::Hook::Listener
           if(!cookies)
             cookies = Hash.new
           end
-          
+
           newCookies.each do |cookie|
             cookie = ( cookie.split(';')[0] ).split('=', 2)
             cookies[ cookie[0] ] = cookie[1]
           end
-          
+
           cookiesStore[:cookies] = cookies
         end
       end
