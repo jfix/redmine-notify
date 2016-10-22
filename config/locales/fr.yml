@@ -1,0 +1,6 @@
+"fr":
+  plugin_help: Merci de remplir ces champs afin de permettre à Redmine de communiquer avec le broker de messages.
+  broker_url: URL
+  broker_url_hint: (par exemple http://localhost:8161/api/message/redmine?type=topic)
+  broker_login: Identifiant
+  broker_pwd: Mot de passe
